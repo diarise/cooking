@@ -896,65 +896,38 @@
 
         // Form submission handler
         // Modified submit handler
-    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formStatus = document.getElementById('form-status');
-        const orderId = generateOrderId();
-        
-        // Prepare order data
-        const orderData = {
-            order_id: orderId,
-            customer_name: document.getElementById('customer-name').value,
-            customer_email: document.getElementById('customer-email').value,
-            customer_phone: document.getElementById('customer-phone').value,
-            delivery_address: document.getElementById('delivery-address').value,
-            delivery_time: document.getElementById('delivery-time').value,
-            total_amount: parseFloat(cartTotal.textContent.replace('Total: $', '')),
-            cart_items: JSON.stringify(cart),
-            zelle_id: orderId // For Zelle payment reference
-        };
+    // Use a reliable CORS proxy
+const PROXY = 'https://thingproxy.freeboard.io/fetch/';
 
-        try {
-            // 1. Save to Google Sheets
-            const sheetResponse = await fetch('https://script.google.com/macros/s/AKfycbxaeu_Pl4AAfnNoIA9gAdzSBNw8G-RwkI-8JwIU8_UskBxivyjXFDwQIM7XluqC80f2/exec', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'text/plain' // Bypass CORS preflight
-  },
-  body: JSON.stringify(orderData)
-});
+document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const orderData = {
+    orderId: generateOrderId(),
+    customerEmail: document.getElementById('customer-email').value,
+    total: cartTotal.textContent.replace('Total: $', ''),
+    items: JSON.stringify(cart)
+  };
 
-            if (!sheetResponse.ok) throw new Error('Failed to save order');
-
-            // Initialize EmailJS with your PUBLIC KEY
-emailjs.init('deljSWNQLMh9XLJFL'); // Public Key from your screenshot
-
-            // 2. Send emails
-            await emailjs.send('service_c6qyw6s', 'template_3tita3o', orderData);
-            await emailjs.send('service_c6qyw6s', 'template_08ph36l', orderData);
-
-            // 3. Update UI
-            formStatus.textContent = 'Order submitted successfully! Check your email.';
-            formStatus.className = 'form-status success';
-            formStatus.style.display = 'block';
-
-            // Update payment section
-            document.getElementById('zelle-order-id').textContent = orderId;
-            document.getElementById('order-id-display').textContent = `Order ID: ${orderId}`;
-
-            // Clear cart
-            cart = [];
-            localStorage.removeItem('cart');
-            updateCartDisplay();
-            setTimeout(() => cartSidebar.classList.remove('active'), 3000);
-
-        } catch (error) {
-            formStatus.textContent = `Error: ${error.message}`;
-            formStatus.className = 'form-status error';
-            formStatus.style.display = 'block';
-        }
+  try {
+    const response = await fetch(PROXY + 'https://script.google.com/macros/s/AKfycbxu1iL74-1PiEbLvtXps-BWuWZQ2By3E4ncpOvpt0lfxsAbvKlY_w4umA5ptN9tGb-P/exec', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(orderData)
     });
+
+    if (response.ok) {
+      // Clear cart and show success
+      cart = [];
+      localStorage.removeItem('cart');
+      updateCartDisplay();
+      alert('Order submitted successfully!');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Submission failed - please try again');
+  }
+});
 
         // Initial cart update
         updateCartDisplay();
