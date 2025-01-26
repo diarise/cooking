@@ -917,10 +917,10 @@
 
         try {
             // 1. Save to Google Sheets
-            const sheetResponse = await fetch('https://script.google.com/macros/s/AKfycbyFhER4G1iZb3SM7ZwYTYb6nnMs8m1ZktslImgCfUrLELkyNPvco0RYwWBovWXj0hrF/exec', {
+            const sheetResponse = await fetch('https://script.google.com/macros/s/AKfycbxaeu_Pl4AAfnNoIA9gAdzSBNw8G-RwkI-8JwIU8_UskBxivyjXFDwQIM7XluqC80f2/exec', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'text/plain' // Bypass CORS preflight
   },
   body: JSON.stringify(orderData)
 });
