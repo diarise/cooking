@@ -918,10 +918,12 @@
         try {
             // 1. Save to Google Sheets
             const sheetResponse = await fetch('https://script.google.com/macros/s/AKfycbyFhER4G1iZb3SM7ZwYTYb6nnMs8m1ZktslImgCfUrLELkyNPvco0RYwWBovWXj0hrF/exec', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(orderData)
-            });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(orderData)
+});
 
             if (!sheetResponse.ok) throw new Error('Failed to save order');
 
